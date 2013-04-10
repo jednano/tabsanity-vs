@@ -1,5 +1,5 @@
 # Build Folders (you can keep bin if you'd like, to store dlls and pdbs)
-[Bb]in/
+# [Bb]in/
 [Oo]bj/
 
 # mstest test results
@@ -15,7 +15,7 @@ TestResults
 
 # Build results
 [Dd]ebug/
-[Rr]elease/
+# [Rr]elease/
 x64/
 *_i.c
 *_p.c
@@ -23,7 +23,7 @@ x64/
 *.meta
 *.obj
 *.pch
-*.pdb
+# *.pdb
 *.pgc
 *.pgd
 *.rsp
@@ -89,8 +89,6 @@ csx
 AppPackages/
 
 # Others
-[Bb]in
-[Oo]bj
 sql
 TestResults
 [Tt]est[Rr]esult*

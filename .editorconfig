@@ -1,5 +1,10 @@
 root = true
 
 [*]
-end_of_line = crlf
 indent_style = tab
+end_of_line = crlf
+insert_final_newline = true
+
+[*.csproj*]
+indent_style = space
+indent_size = 2
