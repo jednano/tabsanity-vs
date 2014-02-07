@@ -1,6 +1,6 @@
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011">
   <Metadata>
-    <Identity Id="TabSanity..1ed91e2d-6cc9-41aa-91aa-5c52e88e36bc" Version="0.1.0" Language="en-US" Publisher="Jed Hunsaker" />
+    <Identity Id="TabSanity..1ed91e2d-6cc9-41aa-91aa-5c52e88e36bc" Version="0.1.1" Language="en-US" Publisher="Jed Hunsaker" />
     <DisplayName>TabSanity</DisplayName>
     <Description xml:space="preserve">Navigate through tabs-as-spaces as if they were actually tabs.</Description>
     <MoreInfo>https://github.com/jedhunsaker/tabsanity-vs#tabsanity-visual-studio-package</MoreInfo>
@@ -10,9 +10,9 @@
     <Tags>editor, code editor, text editor, tabs, indentation</Tags>
   </Metadata>
   <Installation>
-    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Ultimate" />
-    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Premium" />
-    <InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Pro" />
+    <InstallationTarget Version="[11.0,13.0)" Id="Microsoft.VisualStudio.Ultimate" />
+    <InstallationTarget Version="[11.0,13.0)" Id="Microsoft.VisualStudio.Premium" />
+    <InstallationTarget Version="[11.0,13.0)" Id="Microsoft.VisualStudio.Pro" />
   </Installation>
   <Dependencies>
     <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" Version="4.5" />
