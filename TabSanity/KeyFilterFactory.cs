@@ -30,7 +30,7 @@ namespace TabSanity
 			new BackspaceDeleteKeyFilter(app, view);
 			// ReSharper restore ObjectCreationAsStatement
 
-			AddCommandFilter(viewAdapter, new ArrowKeyFilter(view));
+			AddCommandFilter(viewAdapter, new ArrowKeyFilter(view, viewAdapter));
 		}
 
 		private static void AddCommandFilter(IVsTextView viewAdapter, ArrowKeyFilter commandFilter)

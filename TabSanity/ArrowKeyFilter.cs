@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
+using Microsoft.VisualStudio.TextManager.Interop;
 using System;
 
 namespace TabSanity
@@ -13,6 +14,7 @@ namespace TabSanity
 		internal bool Added;
 		private int? _savedCaretColumn;
 		private ITextSnapshotLine _snapshotLine;
+		private IVsTextViewEx _viewAdapter;
 
 		#region Arrow key constants
 
@@ -45,7 +47,7 @@ namespace TabSanity
 			get
 			{
 				return Caret.Position.BufferPosition.Position +
-				       Caret.Position.VirtualBufferPosition.VirtualSpaces - CaretLine.Start.Position;
+					   Caret.Position.VirtualBufferPosition.VirtualSpaces - CaretLine.Start.Position;
 			}
 		}
 
@@ -89,15 +91,16 @@ namespace TabSanity
 			get
 			{
 				return CaretColumn > ColumnAfterLeadingSpaces &&
-				       CaretColumn < ColumnBeforeTrailingSpaces;
+					   CaretColumn < ColumnBeforeTrailingSpaces;
 			}
 		}
 
 		#endregion
 
-		public ArrowKeyFilter(IWpfTextView textView)
+		public ArrowKeyFilter(IWpfTextView textView, IVsTextView viewAdapter)
 			: base(textView)
 		{
+			_viewAdapter = viewAdapter as IVsTextViewEx;
 			Caret.PositionChanged += CaretOnPositionChanged;
 		}
 
@@ -113,7 +116,10 @@ namespace TabSanity
 
 		public int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
-			if (ConvertTabsToSpaces && TextView.Selection.IsEmpty && pguidCmdGroup == VSConstants.VSStd2K)
+			if (ConvertTabsToSpaces && 
+				TextView.Selection.IsEmpty && 
+				pguidCmdGroup == VSConstants.VSStd2K && 
+				(_viewAdapter == null || _viewAdapter.IsCompletorWindowActive() != VSConstants.S_OK))
 			{
 				switch (nCmdID)
 				{
