@@ -1,12 +1,13 @@
-﻿using EnvDTE;
+﻿using System.ComponentModel.Composition;
+using EnvDTE;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
+using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
-using System.ComponentModel.Composition;
 
 namespace TabSanity
 {
@@ -15,9 +16,14 @@ namespace TabSanity
 	[TextViewRole(PredefinedTextViewRoles.Editable)]
 	internal class KeyFilterFactory : IVsTextViewCreationListener
 	{
-		[Import(typeof (IVsEditorAdaptersFactoryService))] private IVsEditorAdaptersFactoryService _editorFactory;
+		[Import(typeof (IVsEditorAdaptersFactoryService))] 
+		private IVsEditorAdaptersFactoryService _editorFactory;
 
-		[Import] private SVsServiceProvider _serviceProvider;
+		[Import] 
+		private SVsServiceProvider _serviceProvider;
+
+		[Import]
+		private ICompletionBroker _broker;
 
 		public void VsTextViewCreated(IVsTextView viewAdapter)
 		{
@@ -30,7 +36,7 @@ namespace TabSanity
 			new BackspaceDeleteKeyFilter(app, view);
 			// ReSharper restore ObjectCreationAsStatement
 
-			AddCommandFilter(viewAdapter, new ArrowKeyFilter(view, viewAdapter));
+			AddCommandFilter(viewAdapter, new ArrowKeyFilter(_broker, view));
 		}
 
 		private static void AddCommandFilter(IVsTextView viewAdapter, ArrowKeyFilter commandFilter)

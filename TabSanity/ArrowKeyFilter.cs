@@ -1,10 +1,10 @@
-﻿using Microsoft.VisualStudio;
+﻿using System;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.Text.Formatting;
-using Microsoft.VisualStudio.TextManager.Interop;
-using System;
 
 namespace TabSanity
 {
@@ -14,7 +14,8 @@ namespace TabSanity
 		internal bool Added;
 		private int? _savedCaretColumn;
 		private ITextSnapshotLine _snapshotLine;
-		private IVsTextViewEx _viewAdapter;
+		private ITextView _view;
+		private ICompletionBroker _broker;
 
 		#region Arrow key constants
 
@@ -97,10 +98,11 @@ namespace TabSanity
 
 		#endregion
 
-		public ArrowKeyFilter(IWpfTextView textView, IVsTextView viewAdapter)
+		public ArrowKeyFilter(ICompletionBroker broker, IWpfTextView textView)
 			: base(textView)
 		{
-			_viewAdapter = viewAdapter as IVsTextViewEx;
+			_broker = broker;
+			_view = textView;
 			Caret.PositionChanged += CaretOnPositionChanged;
 		}
 
@@ -116,10 +118,11 @@ namespace TabSanity
 
 		public int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
-			if (ConvertTabsToSpaces && 
-				TextView.Selection.IsEmpty && 
-				pguidCmdGroup == VSConstants.VSStd2K && 
-				(_viewAdapter == null || _viewAdapter.IsCompletorWindowActive() != VSConstants.S_OK))
+			if (ConvertTabsToSpaces 
+				&& TextView.Selection.IsEmpty 
+				&& pguidCmdGroup == VSConstants.VSStd2K 
+				&& (_broker == null || !_broker.IsCompletionActive(_view))
+				)
 			{
 				switch (nCmdID)
 				{
