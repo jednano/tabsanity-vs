@@ -22,8 +22,17 @@ namespace TabSanity
 		[Import] 
 		private SVsServiceProvider _serviceProvider;
 
-		[Import]
-		private ICompletionBroker _broker;
+		private DisplayWindowHelper _helperFactory;
+
+		[ImportingConstructor]
+		internal KeyFilterFactory(
+			ICompletionBroker completionBroker,
+			ISignatureHelpBroker signatureHelpBroker,
+			ISmartTagBroker smartTagBroker,
+			IQuickInfoBroker quickInfoBroker)
+		{
+			_helperFactory = new DisplayWindowHelper(completionBroker, signatureHelpBroker, smartTagBroker, quickInfoBroker);
+		}
 
 		public void VsTextViewCreated(IVsTextView viewAdapter)
 		{
@@ -36,7 +45,7 @@ namespace TabSanity
 			new BackspaceDeleteKeyFilter(app, view);
 			// ReSharper restore ObjectCreationAsStatement
 
-			AddCommandFilter(viewAdapter, new ArrowKeyFilter(_broker, view));
+			AddCommandFilter(viewAdapter, new ArrowKeyFilter(_helperFactory.ForTextView(view), view));
 		}
 
 		private static void AddCommandFilter(IVsTextView viewAdapter, ArrowKeyFilter commandFilter)

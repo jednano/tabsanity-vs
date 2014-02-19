@@ -14,8 +14,7 @@ namespace TabSanity
 		internal bool Added;
 		private int? _savedCaretColumn;
 		private ITextSnapshotLine _snapshotLine;
-		private ITextView _view;
-		private ICompletionBroker _broker;
+		private DisplayWindowHelper _displayHelper;
 
 		#region Arrow key constants
 
@@ -98,11 +97,10 @@ namespace TabSanity
 
 		#endregion
 
-		public ArrowKeyFilter(ICompletionBroker broker, IWpfTextView textView)
+		public ArrowKeyFilter(DisplayWindowHelper displayHelper, IWpfTextView textView)
 			: base(textView)
 		{
-			_broker = broker;
-			_view = textView;
+			_displayHelper = displayHelper;
 			Caret.PositionChanged += CaretOnPositionChanged;
 		}
 
@@ -121,7 +119,8 @@ namespace TabSanity
 			if (ConvertTabsToSpaces 
 				&& TextView.Selection.IsEmpty 
 				&& pguidCmdGroup == VSConstants.VSStd2K 
-				&& (_broker == null || !_broker.IsCompletionActive(_view))
+				&& !_displayHelper.IsCompletionActive
+				&& !_displayHelper.IsSignatureHelpActive
 				)
 			{
 				switch (nCmdID)

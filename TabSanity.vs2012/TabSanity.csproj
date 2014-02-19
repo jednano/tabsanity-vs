@@ -78,6 +78,9 @@
     <Compile Include="..\TabSanity\BackspaceDeleteKeyFilter.cs">
       <Link>BackspaceDeleteKeyFilter.cs</Link>
     </Compile>
+    <Compile Include="..\TabSanity\DisplayWindowHelper.cs">
+      <Link>DisplayWindowHelper.cs</Link>
+    </Compile>
     <Compile Include="..\TabSanity\KeyFilterFactory.cs">
       <Link>KeyFilterFactory.cs</Link>
     </Compile>
