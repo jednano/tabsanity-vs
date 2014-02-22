@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+	<Metadata>
+		<Identity Id="TabSanity..1ed91e2d-6cc9-41aa-91aa-5c52e88e36bc" Version="0.1.0" Language="en-US" Publisher="Jed Hunsaker" />
+		<DisplayName>TabSanity</DisplayName>
+		<Description xml:space="preserve">Navigate through tabs-as-spaces as if they were actually tabs.</Description>
+		<MoreInfo>https://github.com/jedhunsaker/tabsanity-vs#tabsanity-visual-studio-package</MoreInfo>
+		<License>license.txt</License>
+		<GettingStartedGuide>https://github.com/jedhunsaker/tabsanity-vs#installing</GettingStartedGuide>
+		<ReleaseNotes>https://github.com/jedhunsaker/tabsanity-vs/blob/master/release.md#release-notes</ReleaseNotes>
+		<Tags>editor, code editor, text editor, tabs, indentation</Tags>
+	</Metadata>
+	<Installation>
+		<InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Ultimate" />
+		<InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Premium" />
+		<InstallationTarget Version="[11.0,12.0)" Id="Microsoft.VisualStudio.Pro" />
+	</Installation>
+	<Dependencies>
+		<Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
+		<Dependency d:Source="Installed" Id="EditorConfig..5cd8e6a2-be43-4fcc-a345-40f6cc1e9c9f" DisplayName="EditorConfig" Version="[0.3.0,1.0)" d:InstallSource="Download" Location="http://visualstudiogallery.msdn.microsoft.com/c8bccfe2-650c-4b42-bc5c-845e21f96328" />
+	</Dependencies>
+	<Assets>
+		<Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+	</Assets>
+</PackageManifest>
