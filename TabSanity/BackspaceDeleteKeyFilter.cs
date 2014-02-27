@@ -13,7 +13,7 @@ namespace TabSanity
 		public BackspaceDeleteKeyFilter(_DTE app, IWpfTextView textView)
 			: base(textView)
 		{
-			var events = (Events2) app.Events;
+			var events = (Events2)app.Events;
 			// ReSharper disable RedundantArgumentDefaultValue
 			_keyPressEvents = events.TextDocumentKeyPressEvents[null];
 			// ReSharper restore RedundantArgumentDefaultValue
@@ -29,13 +29,15 @@ namespace TabSanity
 		}
 
 		private void BeforeKeyPress(string keypress, TextSelection selection,
-		                            bool inStatementCompletion, ref bool cancelKeypress)
+									bool inStatementCompletion, ref bool cancelKeypress)
 		{
 			if (!ConvertTabsToSpaces || !selection.IsEmpty || inStatementCompletion) return;
 
 			switch (keypress)
 			{
 				case BACKSPACE_KEY:
+					ReplaceVirtualSpaces(selection);
+
 					do
 					{
 						selection.CharLeft(true);
@@ -47,10 +49,12 @@ namespace TabSanity
 						}
 						selection.CharRight(true);
 						return;
-					} while (selection.CurrentColumn%IndentSize != 1);
+					} while (selection.CurrentColumn % IndentSize != 1);
 					return;
 
 				case DELETE_KEY:
+					ReplaceVirtualSpaces(selection);
+
 					for (var i = 0; i < IndentSize; i++)
 					{
 						selection.CharRight(true);
@@ -64,6 +68,16 @@ namespace TabSanity
 						return;
 					}
 					return;
+			}
+		}
+
+		private void ReplaceVirtualSpaces(TextSelection selection)
+		{
+			if (TextView.Caret.InVirtualSpace)
+			{
+				var spaces = TextView.Caret.Position.VirtualSpaces;
+				selection.DeleteWhitespace();
+				selection.PadToColumn(spaces + 1);
 			}
 		}
 
