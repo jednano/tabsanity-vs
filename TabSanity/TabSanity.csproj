@@ -80,6 +80,7 @@
     <Compile Include="ArrowKeyFilter.cs" />
     <Compile Include="BackspaceDeleteKeyFilter.cs" />
     <Compile Include="DisplayWindowHelper.cs" />
+    <Compile Include="KeyFilter.cs" />
     <Compile Include="KeyFilterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TabOptionsListener.cs" />
