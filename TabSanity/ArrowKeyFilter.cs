@@ -1,106 +1,29 @@
-﻿using System;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Language.Intellisense;
+﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Text.Formatting;
+using System;
+using IServiceProvider = System.IServiceProvider;
 
 namespace TabSanity
 {
-	internal class ArrowKeyFilter : TabOptionsListener, IOleCommandTarget
+	internal class ArrowKeyFilter : KeyFilter
 	{
-		internal IOleCommandTarget NextTarget;
-		internal bool Added;
 		private int? _savedCaretColumn;
 		private ITextSnapshotLine _snapshotLine;
-		private DisplayWindowHelper _displayHelper;
 
 		#region Arrow key constants
 
-		private const uint ARROW_LEFT = (uint) VSConstants.VSStd2KCmdID.LEFT;
-		private const uint ARROW_RIGHT = (uint) VSConstants.VSStd2KCmdID.RIGHT;
-		private const uint ARROW_UP = (uint) VSConstants.VSStd2KCmdID.UP;
-		private const uint ARROW_DOWN = (uint) VSConstants.VSStd2KCmdID.DOWN;
+		private const uint ARROW_LEFT = (uint)VSConstants.VSStd2KCmdID.LEFT;
+		private const uint ARROW_RIGHT = (uint)VSConstants.VSStd2KCmdID.RIGHT;
+		private const uint ARROW_UP = (uint)VSConstants.VSStd2KCmdID.UP;
+		private const uint ARROW_DOWN = (uint)VSConstants.VSStd2KCmdID.DOWN;
 
-		#endregion
+		#endregion Arrow key constants
 
-		#region Computed Properties
-
-		private ITextCaret Caret
+		public ArrowKeyFilter(DisplayWindowHelper displayHelper, IWpfTextView textView, IServiceProvider provider)
+			: base(displayHelper, textView, provider)
 		{
-			get { return TextView.Caret; }
-		}
-
-		private ITextViewLine CaretLine
-		{
-			get { return Caret.ContainingTextViewLine; }
-		}
-
-		private int CaretColumn
-		{
-			get { return Caret.Position.BufferPosition.Position - CaretLine.Start.Position; }
-		}
-
-		private int VirtualCaretColumn
-		{
-			get
-			{
-				return Caret.Position.BufferPosition.Position +
-					   Caret.Position.VirtualBufferPosition.VirtualSpaces - CaretLine.Start.Position;
-			}
-		}
-
-		private bool CaretCharIsASpace
-		{
-			get { return Caret.Position.BufferPosition.GetChar() == ' '; }
-		}
-
-		private int ColumnAfterLeadingSpaces
-		{
-			get
-			{
-				var snapshot = CaretLine.Snapshot;
-				var column = 0;
-				for (var i = CaretLine.Start.Position; i < CaretLine.End.Position; i++)
-				{
-					column++;
-					if (snapshot[i] != ' ') break;
-				}
-				return column;
-			}
-		}
-
-		private int ColumnBeforeTrailingSpaces
-		{
-			get
-			{
-				var snapshot = CaretLine.Snapshot;
-				var column = CaretLine.Length;
-				for (var i = CaretLine.End.Position - 1; i > CaretLine.Start.Position; i--)
-				{
-					column--;
-					if (snapshot[i] != ' ') break;
-				}
-				return column;
-			}
-		}
-
-		private bool CaretIsWithinCodeRange
-		{
-			get
-			{
-				return CaretColumn > ColumnAfterLeadingSpaces &&
-					   CaretColumn < ColumnBeforeTrailingSpaces;
-			}
-		}
-
-		#endregion
-
-		public ArrowKeyFilter(DisplayWindowHelper displayHelper, IWpfTextView textView)
-			: base(textView)
-		{
-			_displayHelper = displayHelper;
 			Caret.PositionChanged += CaretOnPositionChanged;
 		}
 
@@ -109,18 +32,19 @@ namespace TabSanity
 			_savedCaretColumn = null;
 		}
 
-		public int QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
+		public override int QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
 		{
 			return NextTarget.QueryStatus(ref pguidCmdGroup, cCmds, prgCmds, pCmdText);
 		}
 
-		public int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
+		public override int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
-			if (ConvertTabsToSpaces 
-				&& TextView.Selection.IsEmpty 
-				&& pguidCmdGroup == VSConstants.VSStd2K 
-				&& !_displayHelper.IsCompletionActive
-				&& !_displayHelper.IsSignatureHelpActive
+			if (ConvertTabsToSpaces
+				&& TextView.Selection.IsEmpty
+				&& pguidCmdGroup == VSConstants.VSStd2K
+				&& !IsInAutomationFunction
+				&& !DisplayHelper.IsCompletionActive
+				&& !DisplayHelper.IsSignatureHelpActive
 				)
 			{
 				switch (nCmdID)
@@ -215,11 +139,11 @@ namespace TabSanity
 			if (CaretColumn > ColumnAfterLeadingSpaces)
 				return;
 
-			var remainder = CaretColumn%IndentSize;
+			var remainder = CaretColumn % IndentSize;
 			if (remainder == 0)
 				return;
 
-			if (remainder < IndentSize/2)
+			if (remainder < IndentSize / 2)
 				MoveCaretToPreviousTabStop();
 			else
 				MoveCaretToNextTabStop();
@@ -233,7 +157,7 @@ namespace TabSanity
 
 		private void MoveCaretToNextTabStop()
 		{
-			while (CaretColumn%IndentSize != 0 && CaretCharIsASpace)
+			while (CaretColumn % IndentSize != 0 && CaretCharIsASpace)
 				Caret.MoveToNextCaretPosition();
 			Caret.EnsureVisible();
 		}
@@ -241,7 +165,7 @@ namespace TabSanity
 		private void MoveCaretToPreviousTabStop()
 		{
 			Caret.MoveToPreviousCaretPosition();
-			while (CaretColumn%IndentSize != (IndentSize - 1) && CaretCharIsASpace)
+			while (CaretColumn % IndentSize != (IndentSize - 1) && CaretCharIsASpace)
 				Caret.MoveToPreviousCaretPosition();
 			Caret.MoveToNextCaretPosition();
 			Caret.EnsureVisible();

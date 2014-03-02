@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.Composition;
-using EnvDTE;
-using Microsoft.VisualStudio;
+﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Editor;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.OLE.Interop;
@@ -8,18 +6,19 @@ using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text.Editor;
 using Microsoft.VisualStudio.TextManager.Interop;
 using Microsoft.VisualStudio.Utilities;
+using System.ComponentModel.Composition;
 
 namespace TabSanity
 {
-	[Export(typeof (IVsTextViewCreationListener))]
+	[Export(typeof(IVsTextViewCreationListener))]
 	[ContentType("text")]
 	[TextViewRole(PredefinedTextViewRoles.Editable)]
 	internal class KeyFilterFactory : IVsTextViewCreationListener
 	{
-		[Import(typeof (IVsEditorAdaptersFactoryService))] 
+		[Import(typeof(IVsEditorAdaptersFactoryService))]
 		private IVsEditorAdaptersFactoryService _editorFactory;
 
-		[Import] 
+		[Import]
 		private SVsServiceProvider _serviceProvider;
 
 		private DisplayWindowHelper _helperFactory;
@@ -36,19 +35,17 @@ namespace TabSanity
 
 		public void VsTextViewCreated(IVsTextView viewAdapter)
 		{
-			var app = (DTE) _serviceProvider.GetService(typeof (DTE));
 			var view = _editorFactory.GetWpfTextView(viewAdapter);
-			if (app == null || view == null)
+			if (view == null)
 				return;
 
-			// ReSharper disable ObjectCreationAsStatement
-			new BackspaceDeleteKeyFilter(app, view);
-			// ReSharper restore ObjectCreationAsStatement
+			var displayHelper = _helperFactory.ForTextView(view);
 
-			AddCommandFilter(viewAdapter, new ArrowKeyFilter(_helperFactory.ForTextView(view), view));
+			AddCommandFilter(viewAdapter, new ArrowKeyFilter(displayHelper, view, _serviceProvider));
+			AddCommandFilter(viewAdapter, new BackspaceDeleteKeyFilter(displayHelper, view, _serviceProvider));
 		}
 
-		private static void AddCommandFilter(IVsTextView viewAdapter, ArrowKeyFilter commandFilter)
+		private static void AddCommandFilter(IVsTextView viewAdapter, KeyFilter commandFilter)
 		{
 			if (commandFilter.Added) return;
 			//get the view adapter from the editor factory
@@ -57,7 +54,7 @@ namespace TabSanity
 
 			if (hr != VSConstants.S_OK) return;
 			commandFilter.Added = true;
-			//you'll need the next target for Exec and QueryStatus 
+			//you'll need the next target for Exec and QueryStatus
 			if (next != null)
 				commandFilter.NextTarget = next;
 		}
