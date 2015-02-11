@@ -104,8 +104,9 @@ namespace TabSanity
 					case ARROW_DOWN:
 						try
 						{
-							_snapshotLine = TextView.TextSnapshot.GetLineFromPosition(
-								Caret.Position.BufferPosition.Add(CaretLine.Length - CaretColumn + 2));
+//							_snapshotLine = TextView.TextSnapshot.GetLineFromPosition(
+//								Caret.Position.BufferPosition.Add(CaretLine.Length - CaretColumn + 2));
+							_snapshotLine = FindNextLine();
 							MoveCaretToNearestVirtualTabStop();
 						}
 						catch (ArgumentOutOfRangeException)
@@ -117,6 +118,15 @@ namespace TabSanity
 			}
 
 			return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
+		}
+
+		ITextSnapshotLine FindNextLine()
+		{
+			var current = TextView.TextSnapshot.GetLineFromPosition(Caret.Position.BufferPosition.Position);
+			var next = TextView.TextSnapshot.GetLineFromPosition(Caret.Position.BufferPosition.Add(CaretLine.Length - CaretColumn + 2));
+			if (next.LineNumber == current.LineNumber && next.LineNumber + 1 < TextView.TextSnapshot.LineCount)
+				next = TextView.TextSnapshot.GetLineFromLineNumber(next.LineNumber + 1);
+			return next;
 		}
 
 		private void MoveCaretToNearestVirtualTabStop()
