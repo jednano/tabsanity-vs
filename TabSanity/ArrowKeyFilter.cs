@@ -104,8 +104,6 @@ namespace TabSanity
 					case ARROW_DOWN:
 						try
 						{
-//							_snapshotLine = TextView.TextSnapshot.GetLineFromPosition(
-//								Caret.Position.BufferPosition.Add(CaretLine.Length - CaretColumn + 2));
 							_snapshotLine = FindNextLine();
 							MoveCaretToNearestVirtualTabStop();
 						}
@@ -122,10 +120,12 @@ namespace TabSanity
 
 		ITextSnapshotLine FindNextLine()
 		{
-			var current = TextView.TextSnapshot.GetLineFromPosition(Caret.Position.BufferPosition.Position);
-			var next = TextView.TextSnapshot.GetLineFromPosition(Caret.Position.BufferPosition.Add(CaretLine.Length - CaretColumn + 2));
-			if (next.LineNumber == current.LineNumber && next.LineNumber + 1 < TextView.TextSnapshot.LineCount)
-				next = TextView.TextSnapshot.GetLineFromLineNumber(next.LineNumber + 1);
+			var snapshot = TextView.TextSnapshot;
+			var caretBufferPosition = Caret.Position.BufferPosition;
+			var current = snapshot.GetLineFromPosition(caretBufferPosition.Position);
+			var next = snapshot.GetLineFromPosition(caretBufferPosition.Add(CaretLine.Length - CaretColumn + 2));
+			if (next.LineNumber == current.LineNumber && next.LineNumber + 1 < snapshot.LineCount)
+				next = snapshot.GetLineFromLineNumber(next.LineNumber + 1);
 			return next;
 		}
 
