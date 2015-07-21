@@ -22,7 +22,7 @@
     <InstallationTarget Version="[14.0,15.0)" Id="Microsoft.VisualStudio.VSWinDesktopExpress" />
   </Installation>
   <Dependencies>
-    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5" />
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.6" />
     <Dependency d:Source="Installed" Id="EditorConfig..5cd8e6a2-be43-4fcc-a345-40f6cc1e9c9f" DisplayName="EditorConfig" Version="[0.5.0,1.0)" d:InstallSource="Download" Location="http://visualstudiogallery.msdn.microsoft.com/c8bccfe2-650c-4b42-bc5c-845e21f96328" />
   </Dependencies>
   <Assets>
