@@ -18,7 +18,7 @@ namespace TabSanity
 			IQuickInfoBroker quickInfoBroker)
 			: this(completionBroker, signatureHelpBroker, smartTagBroker, quickInfoBroker)
 		{
-			this.TextView = view;
+			TextView = view;
 		}
 
 		internal DisplayWindowHelper(
