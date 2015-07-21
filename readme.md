@@ -2,12 +2,11 @@
 
 This package causes the Visual Studio text editor to treat tabs-as-spaces as
 if they were actually tabs. That is, the backspace and delete keys, arrow key
-navigation and mouse cursor text selection (coming soon) will not allow the
-caret to land within the spaces that form a tab.
+navigation will not allow the caret to land within the spaces that form a tab.
 
 ## Installing
 
-This package works with Visual Studio 2012 or later. The easiest way to install
+This package works with Visual Studio 2015. The easiest way to install
 the package is with Visual Studio's built-in extension manager. Go to
 `Tools | Extensions and Updates... | Online | Visual Studio Gallery` and search
 for TabSanity. You can also find it on the [Visual Studio Gallery website](http://visualstudiogallery.msdn.microsoft.com/c8bccfe2-650c-4b42-bc5c-845e21f96328).
