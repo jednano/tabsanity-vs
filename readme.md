@@ -11,7 +11,7 @@ the package is with Visual Studio's built-in extension manager. Go to
 `Tools | Extensions and Updates... | Online | Visual Studio Gallery` and search
 for TabSanity. You can also find it on the [Visual Studio Gallery website](http://visualstudiogallery.msdn.microsoft.com/c8bccfe2-650c-4b42-bc5c-845e21f96328).
 
-For Visual Studio 2013, please download and install [TabSanity.vsix](https://github.com/jedmao/tabsanity-vs/blob/master/TabSanity.vs2013/TabSanity.vsix). Thanks @FlipB!
+For Visual Studio 2013, please download and install [TabSanity.vsix](https://github.com/jedmao/tabsanity-vs/raw/master/TabSanity.vs2013/TabSanity.vsix). Thanks @FlipB!
 
 ## Building
 
