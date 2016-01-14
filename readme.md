@@ -28,5 +28,5 @@ and adjust accordingly, just as EditorConfig does.
 
 ## Reporting problems
 
-At this time, feel free to contact Jed Hunsaker directly. See the humans.txt
+At this time, feel free to contact Jed Mao directly. See the humans.txt
 file for contact information.
