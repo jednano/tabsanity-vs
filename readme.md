@@ -6,17 +6,17 @@ navigation will not allow the caret to land within the spaces that form a tab.
 
 ## Installing
 
-This package works with Visual Studio 2015. The easiest way to install
+This package works with Visual Studio 2015 and 2017. The easiest way to install
 the package is with Visual Studio's built-in extension manager. Go to
 `Tools | Extensions and Updates... | Online | Visual Studio Gallery` and search
-for TabSanity. You can also find it on the [Visual Studio Gallery website](http://visualstudiogallery.msdn.microsoft.com/c8bccfe2-650c-4b42-bc5c-845e21f96328).
+for TabSanity. You can also find it on the [Visual Studio Marketplace website](https://marketplace.visualstudio.com/items?itemName=jedmao.TabSanity-10817).
 
 For Visual Studio 2013, please download and install [TabSanity.vsix](https://github.com/jedmao/tabsanity-vs/raw/master/TabSanity.vs2013/TabSanity.vsix). Thanks @FlipB!
 
 ## Building
 
 1. Install the [Visual Studio SDK](http://msdn.microsoft.com/en-us/library/vstudio/bb166441(v=vs.110).aspx).
-2. Open the solution file `TabSanity.sln` in [Visual Studio](http://www.microsoft.com/visualstudio/) 2015.
+2. Open the solution file `TabSanity.sln` in [Visual Studio](http://www.microsoft.com/visualstudio/) 2017.
 3. Look in `TabSanity/Bin/(Debug|Release)/TabSanity.vsix` and double-click to install.
 
 ## Dependencies

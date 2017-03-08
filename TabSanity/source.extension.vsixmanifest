@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="TabSanity..1ed91e2d-6cc9-41aa-91aa-5c52e88e36bc" Version="1.0.0" Language="en-US" Publisher="Jed Mao" />
+    <Identity Id="TabSanity..1ed91e2d-6cc9-41aa-91aa-5c52e88e36bc" Version="1.0.1" Language="en-US" Publisher="Jed Mao" />
     <DisplayName>TabSanity</DisplayName>
     <Description xml:space="preserve">Navigate through tabs-as-spaces as if they were actually tabs.</Description>
     <MoreInfo>https://github.com/jedhunsaker/tabsanity-vs#tabsanity-visual-studio-package</MoreInfo>
@@ -24,4 +24,7 @@
   <Assets>
     <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
   </Assets>
+  <Prerequisites>
+    <Prerequisite Id="Microsoft.VisualStudio.Component.CoreEditor" Version="[15.0.26208.0,16.0)" DisplayName="Visual Studio core editor" />
+  </Prerequisites>
 </PackageManifest>
