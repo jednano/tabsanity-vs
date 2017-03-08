@@ -16,7 +16,7 @@ For Visual Studio 2013, please download and install [TabSanity.vsix](https://git
 ## Building
 
 1. Install the [Visual Studio SDK](http://msdn.microsoft.com/en-us/library/vstudio/bb166441(v=vs.110).aspx).
-2. Open the solution file `TabSanity.sln` in [Visual Studio](http://www.microsoft.com/visualstudio/) 2015 or 2017.
+2. Open the solution file `TabSanity.sln` in [Visual Studio](http://www.microsoft.com/visualstudio/) 2017.
 3. Look in `TabSanity/Bin/(Debug|Release)/TabSanity.vsix` and double-click to install.
 
 ## Dependencies
