@@ -1,4 +1,6 @@
-﻿# TabSanity Visual Studio Extension
+# TabSanity Visual Studio Extension
+
+**_This project is no longer actively maintained._**
 
 This package causes the Visual Studio text editor to treat tabs-as-spaces as
 if they were actually tabs. That is, the backspace and delete keys, arrow key
