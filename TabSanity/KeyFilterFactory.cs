@@ -27,8 +27,8 @@ namespace TabSanity
 		internal KeyFilterFactory(
 			ICompletionBroker completionBroker,
 			ISignatureHelpBroker signatureHelpBroker,
-			ISmartTagBroker smartTagBroker,
-			IQuickInfoBroker quickInfoBroker)
+			ILightBulbBroker smartTagBroker,
+			IAsyncQuickInfoBroker quickInfoBroker)
 		{
 			_helperFactory = new DisplayWindowHelper(completionBroker, signatureHelpBroker, smartTagBroker, quickInfoBroker);
 		}

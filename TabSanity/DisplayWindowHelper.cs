@@ -7,15 +7,15 @@ namespace TabSanity
 	{
 		private ICompletionBroker _completionBroker;
 		private ISignatureHelpBroker _signatureHelpBroker;
-		private ISmartTagBroker _smartTagBroker;
-		private IQuickInfoBroker _quickInfoBroker;
+		private ILightBulbBroker _smartTagBroker;
+		private IAsyncQuickInfoBroker _quickInfoBroker;
 
 		private DisplayWindowHelper(
 			ITextView view,
 			ICompletionBroker completionBroker,
 			ISignatureHelpBroker signatureHelpBroker,
-			ISmartTagBroker smartTagBroker,
-			IQuickInfoBroker quickInfoBroker)
+			ILightBulbBroker smartTagBroker,
+			IAsyncQuickInfoBroker quickInfoBroker)
 			: this(completionBroker, signatureHelpBroker, smartTagBroker, quickInfoBroker)
 		{
 			TextView = view;
@@ -24,8 +24,8 @@ namespace TabSanity
 		internal DisplayWindowHelper(
 			ICompletionBroker completionBroker,
 			ISignatureHelpBroker signatureHelpBroker,
-			ISmartTagBroker smartTagBroker,
-			IQuickInfoBroker quickInfoBroker)
+			ILightBulbBroker smartTagBroker,
+			IAsyncQuickInfoBroker quickInfoBroker)
 		{
 			_completionBroker = completionBroker;
 			_signatureHelpBroker = signatureHelpBroker;
@@ -57,7 +57,7 @@ namespace TabSanity
 
 		internal bool IsSmartTagSessionActive
 		{
-			get { return _smartTagBroker != null ? _smartTagBroker.IsSmartTagActive(this.TextView) : false; }
+			get { return _smartTagBroker != null ? _smartTagBroker.IsLightBulbSessionActive(this.TextView) : false; }
 		}
 
 		internal bool IsQuickInfoActive
