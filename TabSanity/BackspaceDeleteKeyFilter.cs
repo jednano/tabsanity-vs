@@ -9,6 +9,10 @@ namespace TabSanity
 {
 	internal class BackspaceDeleteKeyFilter : KeyFilter
 	{
+		private const uint BACKSPACE = (uint)VSConstants.VSStd2KCmdID.BACKSPACE;
+		private const uint DELETE = (uint)VSConstants.VSStd2KCmdID.DELETE;
+		private const uint DELETE_LEGACY = (uint)VSConstants.VSStd97CmdID.Delete;
+
 		public BackspaceDeleteKeyFilter(DisplayWindowHelper displayHelper, IWpfTextView textView, IServiceProvider provider)
 			: base(displayHelper, textView, provider)
 		{
@@ -16,8 +20,15 @@ namespace TabSanity
 
 		public override int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
-			if (ConvertTabsToSpaces
-				&& TextView.Selection.IsEmpty
+			if ((pguidCmdGroup != VSConstants.VSStd2K && pguidCmdGroup != VSConstants.GUID_VSStandardCommandSet97)
+				|| (pguidCmdGroup == VSConstants.VSStd2K && nCmdID != BACKSPACE && nCmdID != DELETE)
+				|| (pguidCmdGroup == VSConstants.GUID_VSStandardCommandSet97 && nCmdID != DELETE_LEGACY))
+			{
+				return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
+			}
+
+			if (//ConvertTabsToSpaces
+				TextView.Selection.IsEmpty
 				&& !CaretIsWithinCodeRange
 				&& !IsInAutomationFunction
 				&& !DisplayHelper.IsCompletionActive
@@ -28,22 +39,22 @@ namespace TabSanity
 
 				if (pguidCmdGroup == VSConstants.VSStd2K)
 				{
-					switch ((VSConstants.VSStd2KCmdID)nCmdID)
+					switch (nCmdID)
 					{
-						case VSConstants.VSStd2KCmdID.BACKSPACE:
+						case BACKSPACE:
 							handled = HandleBackspaceKey();
 							break;
 
-						case VSConstants.VSStd2KCmdID.DELETE:
+						case DELETE:
 							handled = HandleDeleteKey();
 							break;
 					}
 				}
 				else if (pguidCmdGroup == VSConstants.GUID_VSStandardCommandSet97)
 				{
-					switch ((VSConstants.VSStd97CmdID)nCmdID)
+					switch (nCmdID)
 					{
-						case VSConstants.VSStd97CmdID.Delete:
+						case DELETE_LEGACY:
 							handled = HandleDeleteKey();
 							break;
 					}
@@ -84,7 +95,7 @@ namespace TabSanity
 				}
 			}
 
-			if (spacesToRemove > 1)
+			if (spacesToRemove > 1 && spacesToRemove % IndentSize == 0)
 			{
 				TextView.TextBuffer.Delete(new Span(caretPos - spacesToRemove, spacesToRemove));
 				return true;
@@ -121,7 +132,7 @@ namespace TabSanity
 				}
 			}
 
-			if (spacesToRemove > 1)
+			if (spacesToRemove > 1 && spacesToRemove % IndentSize == 0)
 			{
 				TextView.TextBuffer.Delete(new Span(caretPos, spacesToRemove));
 				return true;
