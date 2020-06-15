@@ -11,9 +11,11 @@ namespace TabSanity
 	{
 		private int? _savedCaretColumn;
 		private ITextSnapshotLine _snapshotLine;
+		private object _activeLock = new object();
+		private bool _allowClearSavedCaretColumn = true;
+		private bool _isActive;
 
 		#region Arrow key constants
-
 		private const uint ARROW_LEFT = (uint)VSConstants.VSStd2KCmdID.LEFT;
 		private const uint SHIFT_ARROW_LEFT = (uint)VSConstants.VSStd2KCmdID.LEFT_EXT;
 		private const uint ARROW_RIGHT = (uint)VSConstants.VSStd2KCmdID.RIGHT;
@@ -22,7 +24,6 @@ namespace TabSanity
 		private const uint SHIFT_ARROW_UP = (uint)VSConstants.VSStd2KCmdID.UP_EXT;
 		private const uint ARROW_DOWN = (uint)VSConstants.VSStd2KCmdID.DOWN;
 		private const uint SHIFT_ARROW_DOWN = (uint)VSConstants.VSStd2KCmdID.DOWN_EXT;
-
 		#endregion Arrow key constants
 
 		public ArrowKeyFilter(DisplayWindowHelper displayHelper, IWpfTextView textView, IServiceProvider provider)
@@ -33,7 +34,39 @@ namespace TabSanity
 
 		private void CaretOnPositionChanged(object sender, CaretPositionChangedEventArgs e)
 		{
-			_savedCaretColumn = null;
+			if (_allowClearSavedCaretColumn)
+				_savedCaretColumn = null;
+
+			if (_isActive
+				|| IsInAutomationFunction
+				|| DisplayHelper.IsCompletionActive
+				|| DisplayHelper.IsSignatureHelpActive
+				|| CaretIsWithinCodeRange)
+				return;
+
+			lock (_activeLock)
+			{
+				var originalSavedCaretColumn = _savedCaretColumn;
+				var originalSnapshotLine = _snapshotLine;
+				try
+				{
+					_isActive = true;
+					_savedCaretColumn = CaretColumn;
+					_snapshotLine = TextView.TextSnapshot.GetLineFromPosition(Caret.Position.BufferPosition);
+					var caretStartingPosition = Caret.Position.VirtualBufferPosition;
+
+					MoveCaretToNearestVirtualTabStop();
+
+					if (!TextView.Selection.IsEmpty)
+						AdjustTextSelection(0, TextView.Selection.AnchorPoint);
+				}
+				finally
+				{
+					_isActive = false;
+					_savedCaretColumn = originalSavedCaretColumn;
+					_snapshotLine = originalSnapshotLine;
+				}
+			}
 		}
 
 		public override int QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
@@ -43,102 +76,111 @@ namespace TabSanity
 
 		public override int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
-			if (nCmdID < ARROW_LEFT || nCmdID > SHIFT_ARROW_DOWN)
+			if (nCmdID < ARROW_LEFT
+				|| nCmdID > SHIFT_ARROW_DOWN
+				|| pguidCmdGroup != VSConstants.VSStd2K
+				|| IsInAutomationFunction
+				|| DisplayHelper.IsCompletionActive
+				|| DisplayHelper.IsSignatureHelpActive)
 			{
 				_savedCaretColumn = null;
 				return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
 			}
 
-			if (//ConvertTabsToSpaces
-				pguidCmdGroup == VSConstants.VSStd2K
-				&& !IsInAutomationFunction
-				&& !DisplayHelper.IsCompletionActive
-				&& !DisplayHelper.IsSignatureHelpActive
-				)
+			lock (_activeLock)
 			{
-				switch (nCmdID)
+				try
 				{
-					case ARROW_LEFT:
-					case ARROW_RIGHT:
-					case SHIFT_ARROW_LEFT:
-					case SHIFT_ARROW_RIGHT:
-						if (CaretIsWithinCodeRange)
-							goto default;
-						break;
+					_isActive = true;
 
-					case ARROW_UP:
-					case ARROW_DOWN:
-					case SHIFT_ARROW_UP:
-					case SHIFT_ARROW_DOWN:
-						Caret.PositionChanged -= CaretOnPositionChanged;
-						if (!_savedCaretColumn.HasValue)
-							_savedCaretColumn = VirtualCaretColumn;
-						break;
+					switch (nCmdID)
+					{
+						case ARROW_LEFT:
+						case ARROW_RIGHT:
+						case SHIFT_ARROW_LEFT:
+						case SHIFT_ARROW_RIGHT:
+							if (CaretIsWithinCodeRange)
+								goto default;
+							break;
 
-					default:
-						_savedCaretColumn = null;
-						return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
-				}
+						case ARROW_UP:
+						case ARROW_DOWN:
+						case SHIFT_ARROW_UP:
+						case SHIFT_ARROW_DOWN:
+							_allowClearSavedCaretColumn = false;
+							if (!_savedCaretColumn.HasValue)
+								_savedCaretColumn = VirtualCaretColumn;
+							break;
 
-				var caretStartingPosition = Caret.Position.VirtualBufferPosition;
-				var selectionAnchorPoint = TextView.Selection.IsEmpty ? caretStartingPosition : TextView.Selection.AnchorPoint;
-				switch (nCmdID)
-				{
-					case ARROW_LEFT:
-					case SHIFT_ARROW_LEFT:
-						Caret.MoveToPreviousCaretPosition();
-						if (CaretCharIsASpace)
-						{
-							MoveCaretToPreviousTabStop();
-							AdjustTextSelection(nCmdID, selectionAnchorPoint);
-							return VSConstants.S_OK;
-						}
-						Caret.MoveToNextCaretPosition();
-						break;
+						default:
+							_savedCaretColumn = null;
+							return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
+					}
 
-					case ARROW_RIGHT:
-					case SHIFT_ARROW_RIGHT:
-						if (CaretCharIsASpace)
-						{
+					var caretStartingPosition = Caret.Position.VirtualBufferPosition;
+					var selectionAnchorPoint = TextView.Selection.IsEmpty ? caretStartingPosition : TextView.Selection.AnchorPoint;
+					switch (nCmdID)
+					{
+						case ARROW_LEFT:
+						case SHIFT_ARROW_LEFT:
+							Caret.MoveToPreviousCaretPosition();
+							if (CaretCharIsASpace)
+							{
+								MoveCaretToPreviousTabStop();
+								AdjustTextSelection(nCmdID, selectionAnchorPoint);
+								return VSConstants.S_OK;
+							}
 							Caret.MoveToNextCaretPosition();
-							MoveCaretToNextTabStop();
+							break;
+
+						case ARROW_RIGHT:
+						case SHIFT_ARROW_RIGHT:
+							if (CaretCharIsASpace)
+							{
+								Caret.MoveToNextCaretPosition();
+								MoveCaretToNextTabStop();
+								AdjustTextSelection(nCmdID, selectionAnchorPoint);
+								return VSConstants.S_OK;
+							}
+							break;
+
+						case ARROW_UP:
+						case SHIFT_ARROW_UP:
+							try
+							{
+								_snapshotLine = TextView.TextSnapshot.GetLineFromPosition(
+									Caret.Position.BufferPosition.Subtract(CaretColumn + 1));
+								MoveCaretToNearestVirtualTabStop();
+							}
+							catch (ArgumentOutOfRangeException)
+							{
+							}
+							_allowClearSavedCaretColumn = true;
 							AdjustTextSelection(nCmdID, selectionAnchorPoint);
 							return VSConstants.S_OK;
-						}
-						break;
 
-					case ARROW_UP:
-					case SHIFT_ARROW_UP:
-						try
-						{
-							_snapshotLine = TextView.TextSnapshot.GetLineFromPosition(
-								Caret.Position.BufferPosition.Subtract(CaretColumn + 1));
-							MoveCaretToNearestVirtualTabStop();
-						}
-						catch (ArgumentOutOfRangeException)
-						{
-						}
-						Caret.PositionChanged += CaretOnPositionChanged;
-						AdjustTextSelection(nCmdID, selectionAnchorPoint);
-						return VSConstants.S_OK;
+						case ARROW_DOWN:
+						case SHIFT_ARROW_DOWN:
+							try
+							{
+								_snapshotLine = FindNextLine();
+								MoveCaretToNearestVirtualTabStop();
+							}
+							catch (ArgumentOutOfRangeException)
+							{
+							}
+							_allowClearSavedCaretColumn = true;
+							AdjustTextSelection(nCmdID, selectionAnchorPoint);
+							return VSConstants.S_OK;
+					}
 
-					case ARROW_DOWN:
-					case SHIFT_ARROW_DOWN:
-						try
-						{
-							_snapshotLine = FindNextLine();
-							MoveCaretToNearestVirtualTabStop();
-						}
-						catch (ArgumentOutOfRangeException)
-						{
-						}
-						Caret.PositionChanged += CaretOnPositionChanged;
-						AdjustTextSelection(nCmdID, selectionAnchorPoint);
-						return VSConstants.S_OK;
+					return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
+				}
+				finally
+				{
+					_isActive = false;
 				}
 			}
-
-			return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
 		}
 
 		private void AdjustTextSelection(uint nCmdID, VirtualSnapshotPoint selectionAnchorPoint)
@@ -229,7 +271,7 @@ namespace TabSanity
 				Caret.MoveToPreviousCaretPosition();
 			}
 
-			if (Caret.Position.BufferPosition.Position != 0) 
+			if (Caret.Position.BufferPosition.Position != 0)
 			{ // Do this for all cases except the first char of the document
 				Caret.MoveToNextCaretPosition();
 			}
