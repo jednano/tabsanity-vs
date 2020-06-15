@@ -1,10 +1,10 @@
 ﻿# Release Notes
 
-## 0.2.0
-* Future release.
-* To support modifier keys and mouse cursor selection.
+## 2.0.1
 
-## 0.1.0
+* Support modifier keys (shift) and mouse cursor selection. Editor interaction with spaces is now indistinguishable from tabs.
+
+## 1.0.0
 
 * Initial release.
 * Supports backspace, delete and arrow key navigation.
