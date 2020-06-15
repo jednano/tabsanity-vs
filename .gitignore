@@ -112,3 +112,5 @@ UpgradeLog*.XML
 *.ide-shm
 
 *.ide-wal
+
+.vs/
