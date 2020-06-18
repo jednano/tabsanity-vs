@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using System;
@@ -72,11 +73,13 @@ namespace TabSanity
 
 		public override int QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			return NextTarget.QueryStatus(ref pguidCmdGroup, cCmds, prgCmds, pCmdText);
 		}
 
 		public override int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			if (nCmdID < ARROW_LEFT
 				|| nCmdID > SHIFT_ARROW_DOWN
 				|| pguidCmdGroup != VSConstants.VSStd2K
@@ -115,6 +118,7 @@ namespace TabSanity
 
 						default:
 							_savedCaretColumn = null;
+							ThreadHelper.ThrowIfNotOnUIThread();
 							return NextTarget.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
 					}
 
@@ -198,7 +202,7 @@ namespace TabSanity
 			}
 		}
 
-		ITextSnapshotLine FindNextLine()
+		private ITextSnapshotLine FindNextLine()
 		{
 			var snapshot = TextView.TextSnapshot;
 			var caretBufferPosition = Caret.Position.BufferPosition;

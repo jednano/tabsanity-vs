@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Editor;
 using System;
@@ -20,6 +21,7 @@ namespace TabSanity
 
 		public override int Exec(ref Guid pguidCmdGroup, uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			if ((pguidCmdGroup != VSConstants.VSStd2K && pguidCmdGroup != VSConstants.GUID_VSStandardCommandSet97)
 				|| (pguidCmdGroup == VSConstants.VSStd2K && nCmdID != BACKSPACE && nCmdID != DELETE)
 				|| (pguidCmdGroup == VSConstants.GUID_VSStandardCommandSet97 && nCmdID != DELETE_LEGACY))
@@ -71,6 +73,7 @@ namespace TabSanity
 
 		public override int QueryStatus(ref Guid pguidCmdGroup, uint cCmds, OLECMD[] prgCmds, IntPtr pCmdText)
 		{
+			ThreadHelper.ThrowIfNotOnUIThread();
 			return NextTarget.QueryStatus(ref pguidCmdGroup, cCmds, prgCmds, pCmdText);
 		}
 

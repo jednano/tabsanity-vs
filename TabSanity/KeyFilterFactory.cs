@@ -49,8 +49,7 @@ namespace TabSanity
 		{
 			if (commandFilter.Added) return;
 			//get the view adapter from the editor factory
-			IOleCommandTarget next;
-			var hr = viewAdapter.AddCommandFilter(commandFilter, out next);
+			var hr = viewAdapter.AddCommandFilter(commandFilter, out IOleCommandTarget next);
 
 			if (hr != VSConstants.S_OK) return;
 			commandFilter.Added = true;

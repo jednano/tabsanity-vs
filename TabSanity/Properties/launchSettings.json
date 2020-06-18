@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "VSIX.Test": {
+      "commandName": "Executable",
+      "executablePath": "$(DevEnvDir)devenv.exe",
+      "commandLineArgs": "/rootSuffix Exp"
+    }
+  }
+}
