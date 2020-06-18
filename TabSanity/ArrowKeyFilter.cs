@@ -41,7 +41,8 @@ namespace TabSanity
 				|| IsInAutomationFunction
 				|| DisplayHelper.IsCompletionActive
 				|| DisplayHelper.IsSignatureHelpActive
-				|| CaretIsWithinCodeRange)
+				|| CaretIsWithinCodeRange
+				|| CaretColumn % IndentSize == 0)
 				return;
 
 			lock (_activeLock)
