@@ -40,6 +40,7 @@ namespace TabSanity
 
 			if (_isActive
 				|| IsInAutomationFunction
+				|| (!TextView.Selection.IsEmpty && TextView.Selection.Mode == TextSelectionMode.Box)
 				|| DisplayHelper.IsCompletionActive
 				|| DisplayHelper.IsSignatureHelpActive
 				|| CaretIsWithinCodeRange
@@ -82,6 +83,7 @@ namespace TabSanity
 			ThreadHelper.ThrowIfNotOnUIThread();
 			if (nCmdID < ARROW_LEFT
 				|| nCmdID > SHIFT_ARROW_DOWN
+				|| (!TextView.Selection.IsEmpty && TextView.Selection.Mode == TextSelectionMode.Box)
 				|| pguidCmdGroup != VSConstants.VSStd2K
 				|| IsInAutomationFunction
 				|| DisplayHelper.IsCompletionActive
@@ -219,7 +221,8 @@ namespace TabSanity
 				return;
 
 			var lastIndentColumn = ColumnAfterLeadingSpaces - 1;
-			if (lastIndentColumn < 0) lastIndentColumn = 0;
+			if (lastIndentColumn < 0)
+				lastIndentColumn = 0;
 			MoveCaretToVirtualPosition(_savedCaretColumn.Value);
 
 			if (Caret.InVirtualSpace)
@@ -252,8 +255,16 @@ namespace TabSanity
 		private void MoveCaretToNextTabStop()
 		{
 			var caretStartingPosition = Caret.Position.VirtualBufferPosition;
+			var caretStartingColumn = CaretColumn;
+			var lastCaretColumn = -1;
 			while (CaretColumn % IndentSize != 0 && CaretCharIsASpace)
+			{
+				if (CaretColumn <= lastCaretColumn)
+					break; // Prevent infinite loop in box selection
+
+				lastCaretColumn = CaretColumn;
 				Caret.MoveToNextCaretPosition();
+			}
 
 			if (CaretColumn % IndentSize != 0)
 				Caret.MoveTo(caretStartingPosition); // Do not align on non-exact tab stops
@@ -269,8 +280,8 @@ namespace TabSanity
 			var lastCaretColumn = -1;
 			while (CaretColumn % IndentSize != (IndentSize - 1) && CaretCharIsASpace)
 			{
-				if (CaretColumn == lastCaretColumn)
-					break; // Prevent infinite loop on first char of first line
+				if (CaretColumn >= lastCaretColumn && lastCaretColumn != -1)
+					break; // Prevent infinite loop on first char of first line or in box selection
 
 				lastCaretColumn = CaretColumn;
 				Caret.MoveToPreviousCaretPosition();
@@ -288,13 +299,12 @@ namespace TabSanity
 				// We moved less than a full tab stop length. Only allow this if the cursor started in the middle of a full tab
 				for (int i = 0; i < IndentSize; i++)
 				{
-					if (!CaretCharIsASpace)
+					if (Caret.Position.BufferPosition.Add(i).GetChar() != ' ')
 					{
 						caretNewPosition = null;
 						Caret.MoveTo(caretStartingPosition); // Do not align on non-exact tab stops
 						break;
 					}
-					Caret.MoveToNextCaretPosition();
 				}
 				if (caretNewPosition != null)
 				{

@@ -9,9 +9,9 @@
     <Title>TabSanity</Title>
     <Description>Navigate through tabs-as-spaces as if they were actually tabs.</Description>
     <Company>Jed Mao and Doug Krahmer</Company>
-    <Version>2.0.3.0</Version>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
-    <FileVersion>2.0.3.0</FileVersion>
+    <Version>2.0.4.0</Version>
+    <AssemblyVersion>2.0.4.0</AssemblyVersion>
+    <FileVersion>2.0.4.0</FileVersion>
     <NeutralLanguage>en-US</NeutralLanguage>
     <TargetFramework>net472</TargetFramework>
     <IsVsixProject>True</IsVsixProject>

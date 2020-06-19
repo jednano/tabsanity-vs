@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "VSIX.Test": {
+    "TabSanity": {
       "commandName": "Executable",
       "executablePath": "$(DevEnvDir)devenv.exe",
       "commandLineArgs": "/rootSuffix Exp"
